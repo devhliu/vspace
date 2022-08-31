@@ -1,0 +1,4 @@
+---
+addon_packages:
+  - xfce4-terminal
+desktop: xfce4

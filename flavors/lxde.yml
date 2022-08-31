@@ -1,0 +1,5 @@
+---
+addon_packages:
+  - ttf-ubuntu-font-family
+  - ttf-wqy-zenhei
+desktop: lxde

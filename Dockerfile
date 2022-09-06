@@ -2,7 +2,7 @@
 # base system
 #----------------------------------------------------------------------------------------------
 
-FROM registry.united-imaging.com/mirecon/umic-vspace-ubuntu-xfce:0.0.1 as system
+FROM registry.united-imaging.com/mirecon/umic-vspace-ubuntu-xfce4:0.0.3 as system
 
 # Avoid prompts for time zone
 ENV DEBIAN_FRONTEND noninteractive

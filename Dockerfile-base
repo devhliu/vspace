@@ -8,38 +8,42 @@ FROM ubuntu:20.04 as system
 RUN cp /etc/apt/sources.list /etc/apt/sources.list.nomirror
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#http://mirrors.ustc.edu.cn/ubuntu/#' /etc/apt/sources.list
 
+# timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Avoid prompts for time zone
 ENV DEBIAN_FRONTEND noninteractive
 # Fix issue with libGL on Windows
 ENV LIBGL_ALWAYS_INDIRECT=1
 
-# timezone
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# base packages
+RUN apt-get update && \
+    apt-get install -y apt-utils apt-transport-https && \
+    apt-get install -y --no-install-recommends \
+        software-properties-common \
+        sudo passwd \
+        nginx curl wget net-tools apache2-utils \
+        tar zip unzip patch xz-utils \
+        bash-completion man vim && \
+    apt-get clean && apt autoremove
 
-# built-in packages
-RUN apt-get update && apt-get upgrade -y && apt-get install apt-utils -y \
-    && apt-get install -y --no-install-recommends software-properties-common curl apache2-utils \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends --allow-unauthenticated \
-        supervisor nginx sudo net-tools zenity xz-utils \
-        dbus-x11 x11-utils alsa-utils \
-        mesa-utils libgl1-mesa-dri wget
-
-# install debs error if combine together
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends --allow-unauthenticated \
-        xvfb x11vnc \
-        vim-tiny ttf-ubuntu-font-family ttf-wqy-zenhei
+# vnc + x11 + gl packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libpulse-dev libnss3 libasound2 alsa-utils mesa-utils \
+        libgl1-mesa-dri libglib2.0-de \
+        x11-xserver-utils xinit x11vnc dbus-x11 x11-utils lxrandr xvfb \
+        fonts-dejavu ttf-ubuntu-font-family ttf-wqy-zenhei \
+        nitrogen websockify openbox
 
 # Alternative VNC server
 # RUN apt-get install -y tigervnc-scraping-server
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends --allow-unauthenticated \
+# lxde desktop
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated zenity \
         lxde gtk2-engines-murrine gnome-themes-standard gtk2-engines-pixbuf gtk2-engines-murrine arc-theme
-
-RUN apt-get update && apt-get install -y python3 python3-tk gcc make cmake
 
 # tini to fix subreap
 ARG TINI_VERSION=v0.19.0
